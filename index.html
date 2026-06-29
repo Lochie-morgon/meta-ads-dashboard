@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta Ads Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f3; color: #0b0b0b; min-height: 100vh; }
+  .page { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 2rem; color: #0b0b0b; }
+
+  .section-title { font-size: 11px; font-weight: 600; color: #888780; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 10px; }
+
+  .input-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.75rem; }
+  .input-card { background: #fff; border: 0.5px solid #e1e0d9; border-radius: 12px; padding: 14px 16px; }
+  .input-label { font-size: 12px; color: #52514e; margin-bottom: 6px; }
+  .input-card input, .input-card select {
+    width: 100%; border: 0.5px solid #d3d1c7; border-radius: 8px;
+    padding: 8px 10px; font-size: 15px; font-family: inherit;
+    background: #fff; color: #0b0b0b; outline: none;
+  }
+  .input-card input:focus, .input-card select:focus { border-color: #378add; box-shadow: 0 0 0 3px rgba(55,138,221,0.12); }
+
+  .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.75rem; }
+  .metric-card { background: #f1efe8; border-radius: 8px; padding: 14px 16px; }
+  .metric-label { font-size: 12px; color: #52514e; margin-bottom: 4px; }
+  .metric-value { font-size: 24px; font-weight: 500; color: #0b0b0b; }
+  .metric-sub { font-size: 11px; color: #888780; margin-top: 3px; }
+
+  .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .upload-zone {
+    background: #fff; border: 1.5px dashed #b4b2a9; border-radius: 12px;
+    padding: 20px 16px; text-align: center; cursor: pointer; transition: background 0.15s, border-color 0.15s;
+  }
+  .upload-zone:hover { background: #f1efe8; border-color: #888780; }
+  .upload-zone.has-file { border-style: solid; border-color: #378add; background: #f0f7ff; }
+  .upload-zone input[type=file] { display: none; }
+  .upload-icon { font-size: 26px; color: #888780; }
+  .upload-label { font-size: 13px; color: #52514e; margin-top: 8px; font-weight: 500; }
+  .upload-status { font-size: 11px; margin-top: 4px; color: #888780; }
+  .upload-status.ok { color: #3B6D11; }
+  .upload-status.err { color: #A32D2D; }
+
+  .btn-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-bottom: 1.75rem; }
+  button {
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    padding: 9px 16px; border-radius: 8px; cursor: pointer;
+    border: 0.5px solid #b4b2a9; background: #fff; color: #0b0b0b;
+    transition: background 0.12s;
+  }
+  button:hover { background: #f1efe8; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; background: #fff; }
+  .load-btn { width: 100%; }
+
+  .perf-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+
+  .ad-table-wrap { background: #fff; border: 0.5px solid #e1e0d9; border-radius: 12px; overflow: hidden; margin-bottom: 2rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  thead th {
+    background: #f1efe8; color: #52514e; font-weight: 500;
+    padding: 10px 12px; text-align: left; border-bottom: 0.5px solid #e1e0d9; font-size: 12px;
+  }
+  tbody td { padding: 9px 12px; border-bottom: 0.5px solid #e1e0d9; color: #0b0b0b; vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #fafaf8; }
+
+  table input[type="number"], table input[type="text"] {
+    width: 90%; border: 0.5px solid #d3d1c7; border-radius: 6px;
+    padding: 4px 7px; font-size: 12px; font-family: inherit;
+    background: #fff; color: #0b0b0b; outline: none;
+  }
+  table input:focus { border-color: #378add; box-shadow: 0 0 0 2px rgba(55,138,221,0.1); }
+  table select {
+    border: 0.5px solid #d3d1c7; border-radius: 6px;
+    padding: 4px 6px; font-size: 12px; font-family: inherit;
+    background: #fff; color: #0b0b0b; outline: none;
+  }
+
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; }
+  .badge-keep    { background: #eaf3de; color: #3B6D11; }
+  .badge-off     { background: #FCEBEB; color: #A32D2D; }
+  .badge-monitor { background: #FAEEDA; color: #854F0B; }
+  .badge-freq    { background: #deeeff; color: #185FA5; }
+  .badge-data    { background: #f1efe8; color: #5F5E5A; border: 0.5px solid #d3d1c7; }
+
+  .del-btn { background: none !important; border: none !important; color: #888780; cursor: pointer; font-size: 18px; padding: 0 4px; line-height: 1; }
+  .del-btn:hover { color: #A32D2D; background: none !important; }
+
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  .section-gap { margin-bottom: 1.75rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Meta ads dashboard</h1>
+
+  <div class="section-title">Account settings</div>
+  <div class="input-grid section-gap">
+    <div class="input-card">
+      <div class="input-label">AOV ($)</div>
+      <input type="number" id="aov" value="120" min="1" step="1" oninput="recalc()">
+    </div>
+    <div class="input-card">
+      <div class="input-label">MER</div>
+      <input type="number" id="mer" value="30" min="0.1" step="0.1" oninput="recalc()">
+    </div>
+    <div class="input-card">
+      <div class="input-label">Funnel stage</div>
+      <select id="stage" onchange="recalc()">
+        <option value="TOF">TOF — top of funnel</option>
+        <option value="TOM">TOM — middle</option>
+        <option value="MOF">MOF — bottom</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-title">CPP benchmarks</div>
+  <div class="metrics-grid section-gap" id="benchmarks"></div>
+
+  <div class="section-title">Frequency guide</div>
+  <div class="metrics-grid section-gap" id="freq-guide"></div>
+
+  <div class="section-title">Import CSVs</div>
+  <div class="upload-grid">
+    <label class="upload-zone" id="zone-cpp">
+      <input type="file" id="file-cpp" accept=".csv" onchange="handleFile('cpp', this)">
+      <i class="ti ti-table-import upload-icon" aria-hidden="true"></i>
+      <div class="upload-label">CPP &amp; Spend CSV</div>
+      <div class="upload-status" id="status-cpp">Ad name · Cost per result · Amount spent</div>
+    </label>
+    <label class="upload-zone" id="zone-freq">
+      <input type="file" id="file-freq" accept=".csv" onchange="handleFile('freq', this)">
+      <i class="ti ti-wave-sine upload-icon" aria-hidden="true"></i>
+      <div class="upload-label">Frequency CSV</div>
+      <div class="upload-status" id="status-freq">Ad name · Frequency</div>
+    </label>
+  </div>
+  <div class="btn-row">
+    <button class="load-btn" id="load-btn" onclick="loadAds()" disabled>
+      <i class="ti ti-download" aria-hidden="true"></i> Load ads into table
+    </button>
+    <button onclick="resetAll()">
+      <i class="ti ti-refresh" aria-hidden="true"></i> Refresh
+    </button>
+  </div>
+
+  <div class="perf-header">
+    <div class="section-title" style="margin:0;">Ad performance</div>
+    <button onclick="addRow()"><i class="ti ti-plus" aria-hidden="true"></i> Add ad</button>
+  </div>
+  <div class="ad-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:26%">Ad name</th>
+          <th style="width:13%">Spend ($)</th>
+          <th style="width:10%">% of spend</th>
+          <th style="width:12%">CPP ($)</th>
+          <th style="width:10%">Frequency</th>
+          <th style="width:13%">Assessment</th>
+          <th style="width:4%"></th>
+        </tr>
+      </thead>
+      <tbody id="ad-rows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const freqRanges = { TOF:[1.4,1.8], TOM:[1.8,2.0], MOF:[2.0,2.4] };
+const cppMult = { good:{TOF:2,TOM:1.5,MOF:1}, bad:{TOF:4,TOM:3,MOF:2} };
+const FREQ_HIGH_BUFFER = 1.10;
+
+let ads = [];
+let rowId = 0;
+let cppRows = null;
+let freqRows = null;
+
+function getBlended(aov, mer) { return aov * (mer / 100); }
+function totalSpend() { return ads.reduce((s,a) => s + (parseFloat(a.spend)||0), 0); }
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim());
+  return lines.slice(1).filter(l => l.trim()).map(line => {
+    const vals = [];
+    let cur = '', inQ = false;
+    for (let c of line) {
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else { cur += c; }
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    headers.forEach((h,i) => { obj[h] = (vals[i]||'').replace(/^"|"$/g,'').trim(); });
+    return obj;
+  });
+}
+
+function handleFile(type, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const rows = parseCSV(e.target.result);
+      if (type === 'cpp') {
+        cppRows = rows;
+        document.getElementById('status-cpp').textContent = rows.length + ' rows loaded ✓';
+        document.getElementById('status-cpp').className = 'upload-status ok';
+        document.getElementById('zone-cpp').classList.add('has-file');
+      } else {
+        freqRows = rows;
+        document.getElementById('status-freq').textContent = rows.length + ' rows loaded ✓';
+        document.getElementById('status-freq').className = 'upload-status ok';
+        document.getElementById('zone-freq').classList.add('has-file');
+      }
+    } catch(err) {
+      const sid = type==='cpp' ? 'status-cpp' : 'status-freq';
+      document.getElementById(sid).textContent = 'Error reading file';
+      document.getElementById(sid).className = 'upload-status err';
+    }
+    document.getElementById('load-btn').disabled = !(cppRows && freqRows);
+  };
+  reader.readAsText(file);
+}
+
+function loadAds() {
+  const count = Math.min(cppRows.length, freqRows.length);
+  ads = [];
+  for (let i = 0; i < count; i++) {
+    const cr = cppRows[i];
+    const fr = freqRows[i];
+    const name  = (cr['Ad name'] || '').trim();
+    const spend = parseFloat(cr['Amount spent (AUD)'] || cr['Amount spent'] || 0) || 0;
+    const cpp   = parseFloat(cr['Cost per result'] || 0) || 0;
+    const freq  = parseFloat(fr['Frequency'] || 0) || 0;
+    ads.push({ name, spend, cpp, freq });
+  }
+  rowId = ads.length;
+  renderRows();
+}
+
+function resetAll() {
+  ads = []; rowId = 0; cppRows = null; freqRows = null;
+  ['cpp','freq'].forEach(t => {
+    document.getElementById('file-' + t).value = '';
+    document.getElementById('status-' + t).textContent = t === 'cpp' ? 'Ad name · Cost per result · Amount spent' : 'Ad name · Frequency';
+    document.getElementById('status-' + t).className = 'upload-status';
+    document.getElementById('zone-' + t).classList.remove('has-file');
+  });
+  document.getElementById('load-btn').disabled = true;
+  renderRows();
+}
+
+function assessment(cpp, freq, spend, stage, aov, mer) {
+  const blended = getBlended(aov, mer);
+  const good    = blended * cppMult.good[stage];
+  const bad     = blended * cppMult.bad[stage];
+  const [,fMax] = freqRanges[stage];
+  const freqHighThreshold = fMax * FREQ_HIGH_BUFFER;
+  const tot     = totalSpend();
+  const spendPct = tot > 0 ? (spend / tot) * 100 : 0;
+  if (cpp === 0) {
+    return spendPct >= 10
+      ? '<span class="badge badge-off">Switch off</span>'
+      : '<span class="badge badge-data">Needs more data</span>';
+  }
+  if (cpp >= bad)              return '<span class="badge badge-off">Switch off</span>';
+  if (freq > freqHighThreshold) return '<span class="badge badge-freq">High frequency</span>';
+  if (cpp > good || freq > fMax) return '<span class="badge badge-monitor">Monitor</span>';
+  return '<span class="badge badge-keep">Keep</span>';
+}
+
+function recalc() {
+  const aov   = parseFloat(document.getElementById('aov').value) || 0;
+  const mer   = parseFloat(document.getElementById('mer').value) || 0;
+  const stage = document.getElementById('stage').value;
+  const blended = getBlended(aov, mer);
+  const good  = blended * cppMult.good[stage];
+  const bad   = blended * cppMult.bad[stage];
+  const [fMin, fMax] = freqRanges[stage];
+  const freqHigh = (fMax * FREQ_HIGH_BUFFER).toFixed(2);
+
+  document.getElementById('benchmarks').innerHTML = `
+    <div class="metric-card"><div class="metric-label">Blended CPP</div><div class="metric-value">$${blended.toFixed(2)}</div><div class="metric-sub">AOV × (MER ÷ 100)</div></div>
+    <div class="metric-card"><div class="metric-label">Good CPP (${stage})</div><div class="metric-value" style="color:#3B6D11;">$${good.toFixed(2)}</div><div class="metric-sub">Blended × ${cppMult.good[stage]}</div></div>
+    <div class="metric-card"><div class="metric-label">Bad CPP (${stage})</div><div class="metric-value" style="color:#A32D2D;">$${bad.toFixed(2)}</div><div class="metric-sub">Blended × ${cppMult.bad[stage]}</div></div>`;
+
+  document.getElementById('freq-guide').innerHTML = `
+    <div class="metric-card"><div class="metric-label">Stage</div><div class="metric-value">${stage}</div><div class="metric-sub">${stage==='TOF'?'Top of funnel':stage==='TOM'?'Mid funnel':'Bottom of funnel'}</div></div>
+    <div class="metric-card"><div class="metric-label">Target frequency</div><div class="metric-value">${fMin}–${fMax}</div><div class="metric-sub">7-day window</div></div>
+    <div class="metric-card"><div class="metric-label">High frequency above</div><div class="metric-value">${freqHigh}</div><div class="metric-sub">Max × 1.10</div></div>`;
+
+  renderRows();
+}
+
+function renderRows() {
+  const aov   = parseFloat(document.getElementById('aov').value) || 0;
+  const mer   = parseFloat(document.getElementById('mer').value) || 0;
+  const stage = document.getElementById('stage').value;
+  const tot   = totalSpend();
+  document.getElementById('ad-rows').innerHTML = ads.map((ad, i) => {
+    const pct = tot > 0 ? ((ad.spend / tot) * 100).toFixed(1) : '—';
+    return `<tr>
+      <td style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${ad.name}">${ad.name}</td>
+      <td><input type="number" value="${ad.spend.toFixed(2)}" min="0" step="0.01" style="width:90%;" oninput="ads[${i}].spend=parseFloat(this.value)||0;renderRows()"></td>
+      <td style="color:#52514e;">${pct}%</td>
+      <td><input type="number" value="${ad.cpp.toFixed(2)}" min="0" step="0.01" style="width:90%;" oninput="ads[${i}].cpp=parseFloat(this.value)||0;renderRows()"></td>
+      <td><input type="number" value="${ad.freq.toFixed(2)}" min="0" step="0.01" style="width:90%;" oninput="ads[${i}].freq=parseFloat(this.value)||0;renderRows()"></td>
+      <td>${assessment(ad.cpp, ad.freq, ad.spend, stage, aov, mer)}</td>
+      <td><button class="del-btn" onclick="ads.splice(${i},1);renderRows()" aria-label="Remove ad">×</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function addRow() {
+  ads.push({ name: 'New ad ' + (++rowId), spend: 0, cpp: 0, freq: 0 });
+  renderRows();
+}
+
+recalc();
+</script>
+</body>
+</html>
