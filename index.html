@@ -3,327 +3,637 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meta Ads Dashboard</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<title>Ad assessment — Hegen</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f3; color: #0b0b0b; min-height: 100vh; }
-  .page { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
-  h1 { font-size: 18px; font-weight: 500; margin-bottom: 2rem; color: #0b0b0b; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #fafafa; color: #2c2c2a; padding: 32px 24px; }
+  .wrap { max-width: 1160px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #6f6e6a; margin-bottom: 20px; }
+  .card { background: #fff; border: 1px solid #e6e4de; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .stage-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .stage-tabs button { border: 1px solid #d9d7d0; background: #fff; color: #52514e; padding: 7px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+  .stage-tabs button.active { background: #2c2c2a; color: #fff; border-color: #2c2c2a; }
+  .settings { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; }
+  .setting { display: flex; flex-direction: column; gap: 4px; }
+  .setting label { font-size: 11px; color: #6f6e6a; text-transform: uppercase; letter-spacing: 0.04em; }
+  .setting input { width: 110px; padding: 6px 8px; border: 1px solid #d9d7d0; border-radius: 6px; font-size: 13px; }
+  .setting .hint { font-size: 11px; color: #9a988f; }
 
-  .section-title { font-size: 11px; font-weight: 600; color: #888780; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 10px; }
+  .import-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #6f6e6a; font-weight: 600; margin-bottom: 10px; }
+  .import-cards { display: flex; gap: 14px; margin-bottom: 12px; }
+  .import-card { flex: 1; background: #eef5fd; border: 1.5px solid #a9c7ef; border-radius: 12px; padding: 22px 16px; text-align: center; cursor: pointer; transition: border-color 0.15s; }
+  .import-card:hover { border-color: #4a7fd4; }
+  .import-card .icon { font-size: 20px; margin-bottom: 8px; color: #2c2c2a; }
+  .import-card .title { font-size: 13.5px; font-weight: 600; margin-bottom: 4px; }
+  .import-card .state { font-size: 12px; color: #6f6e6a; }
+  .import-card .state.loaded { color: #3b6d11; }
+  .import-actions { display: flex; gap: 10px; }
+  .load-btn { flex: 1; background: #fff; border: 1px solid #d9d7d0; border-radius: 10px; padding: 11px; font-size: 13.5px; font-weight: 500; color: #2c2c2a; cursor: pointer; }
+  .load-btn:hover { border-color: #2c2c2a; }
+  .refresh-btn { background: #fff; border: 1px solid #d9d7d0; border-radius: 10px; padding: 11px 18px; font-size: 13.5px; font-weight: 500; color: #2c2c2a; cursor: pointer; }
+  .refresh-btn:hover { border-color: #2c2c2a; }
+  .import-status { font-size: 12px; color: #6f6e6a; margin-top: 10px; display: block; }
 
-  .input-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.75rem; }
-  .input-card { background: #fff; border: 0.5px solid #e1e0d9; border-radius: 12px; padding: 14px 16px; }
-  .input-label { font-size: 12px; color: #52514e; margin-bottom: 6px; }
-  .input-card input, .input-card select {
-    width: 100%; border: 0.5px solid #d3d1c7; border-radius: 8px;
-    padding: 8px 10px; font-size: 15px; font-family: inherit;
-    background: #fff; color: #0b0b0b; outline: none;
-  }
-  .input-card input:focus, .input-card select:focus { border-color: #378add; box-shadow: 0 0 0 3px rgba(55,138,221,0.12); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #6f6e6a; font-weight: 500; padding: 8px 10px; border-bottom: 1px solid #e6e4de; white-space: nowrap; }
+  td { padding: 8px 10px; border-bottom: 1px solid #f0eee8; vertical-align: middle; }
+  td input[type="text"] { width: 100%; min-width: 160px; }
+  td input { padding: 6px 8px; border: 1px solid #d9d7d0; border-radius: 6px; font-size: 13px; width: 84px; }
+  td.calc { color: #52514e; white-space: nowrap; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+  .b-red { background: #fdecec; color: #a32d2d; }
+  .b-amber { background: #faeeda; color: #854f0b; }
+  .b-green { background: #eaf3de; color: #3b6d11; }
+  .b-gray { background: #f1efe8; color: #5f5e5a; }
+  .b-teal { background: #e1f5ee; color: #0f6e56; }
+  .badge + .badge { margin-left: 6px; }
+  .del-btn { border: none; background: none; color: #9a988f; font-size: 16px; cursor: pointer; padding: 2px 6px; }
+  .del-btn:hover { color: #a32d2d; }
+  .add-btn { border: 1px dashed #c9c7bf; background: #fff; color: #52514e; padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; margin-top: 12px; }
+  .add-btn:hover { border-color: #2c2c2a; color: #2c2c2a; }
+  .note { font-size: 12px; color: #9a988f; margin-top: 14px; line-height: 1.6; }
+  .guidance { margin-top: 14px; }
+  .guidance summary { font-size: 12px; color: #6f6e6a; cursor: pointer; user-select: none; font-weight: 500; }
+  .guidance summary:hover { color: #2c2c2a; }
+  .guidance .note { margin-top: 8px; }
+  .calc-grid { display: flex; flex-wrap: wrap; gap: 14px 22px; margin-top: 12px; }
+  .calc-grid .setting input { width: 130px; }
+  .calc-out { font-size: 12.5px; color: #52514e; margin-top: 12px; line-height: 1.7; background: #fafaf8; border: 1px solid #f0eee8; border-radius: 8px; padding: 10px 14px; }
+  .calc-out strong { color: #2c2c2a; }
+  .apply-btn { margin-top: 10px; border: 1px solid #d9d7d0; background: #fff; color: #2c2c2a; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+  .apply-btn:hover { border-color: #2c2c2a; }
+  .summary { display: flex; gap: 24px; font-size: 13px; color: #52514e; margin-top: 14px; flex-wrap: wrap; }
+  .summary strong { color: #2c2c2a; }
 
-  .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.75rem; }
-  .metric-card { background: #f1efe8; border-radius: 8px; padding: 14px 16px; }
-  .metric-label { font-size: 12px; color: #52514e; margin-bottom: 4px; }
-  .metric-value { font-size: 24px; font-weight: 500; color: #0b0b0b; }
-  .metric-sub { font-size: 11px; color: #888780; margin-top: 3px; }
-
-  .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .upload-zone {
-    background: #fff; border: 1.5px dashed #b4b2a9; border-radius: 12px;
-    padding: 20px 16px; text-align: center; cursor: pointer; transition: background 0.15s, border-color 0.15s;
-  }
-  .upload-zone:hover { background: #f1efe8; border-color: #888780; }
-  .upload-zone.has-file { border-style: solid; border-color: #378add; background: #f0f7ff; }
-  .upload-zone input[type=file] { display: none; }
-  .upload-icon { font-size: 26px; color: #888780; }
-  .upload-label { font-size: 13px; color: #52514e; margin-top: 8px; font-weight: 500; }
-  .upload-status { font-size: 11px; margin-top: 4px; color: #888780; }
-  .upload-status.ok { color: #3B6D11; }
-  .upload-status.err { color: #A32D2D; }
-
-  .btn-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-bottom: 1.75rem; }
-  button {
-    font-family: inherit; font-size: 13px; font-weight: 500;
-    padding: 9px 16px; border-radius: 8px; cursor: pointer;
-    border: 0.5px solid #b4b2a9; background: #fff; color: #0b0b0b;
-    transition: background 0.12s;
-  }
-  button:hover { background: #f1efe8; }
-  button:disabled { opacity: 0.4; cursor: not-allowed; background: #fff; }
-  .load-btn { width: 100%; }
-
-  .perf-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-
-  .ad-table-wrap { background: #fff; border: 0.5px solid #e1e0d9; border-radius: 12px; overflow: hidden; margin-bottom: 2rem; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
-  thead th {
-    background: #f1efe8; color: #52514e; font-weight: 500;
-    padding: 10px 12px; text-align: left; border-bottom: 0.5px solid #e1e0d9; font-size: 12px;
-  }
-  tbody td { padding: 9px 12px; border-bottom: 0.5px solid #e1e0d9; color: #0b0b0b; vertical-align: middle; }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: #fafaf8; }
-
-  table input[type="number"], table input[type="text"] {
-    width: 90%; border: 0.5px solid #d3d1c7; border-radius: 6px;
-    padding: 4px 7px; font-size: 12px; font-family: inherit;
-    background: #fff; color: #0b0b0b; outline: none;
-  }
-  table input:focus { border-color: #378add; box-shadow: 0 0 0 2px rgba(55,138,221,0.1); }
-  table select {
-    border: 0.5px solid #d3d1c7; border-radius: 6px;
-    padding: 4px 6px; font-size: 12px; font-family: inherit;
-    background: #fff; color: #0b0b0b; outline: none;
-  }
-
-  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; }
-  .badge-keep    { background: #eaf3de; color: #3B6D11; }
-  .badge-off     { background: #FCEBEB; color: #A32D2D; }
-  .badge-monitor { background: #FAEEDA; color: #854F0B; }
-  .badge-freq    { background: #deeeff; color: #185FA5; }
-  .badge-data    { background: #f1efe8; color: #5F5E5A; border: 0.5px solid #d3d1c7; }
-
-  .del-btn { background: none !important; border: none !important; color: #888780; cursor: pointer; font-size: 18px; padding: 0 4px; line-height: 1; }
-  .del-btn:hover { color: #A32D2D; background: none !important; }
-
-  input[type="number"] { -moz-appearance: textfield; }
-  input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-
-  .section-gap { margin-bottom: 1.75rem; }
+  .legend h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .legend .lsub { font-size: 12.5px; color: #6f6e6a; margin-bottom: 20px; }
+  .legend-group { margin-bottom: 24px; }
+  .legend-group:last-child { margin-bottom: 0; }
+  .legend-group h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #6f6e6a; font-weight: 600; margin-bottom: 4px; padding-bottom: 6px; border-bottom: 1px solid #f0eee8; }
+  .legend-row { display: grid; grid-template-columns: 250px 1fr; column-gap: 18px; align-items: start; padding: 9px 0; border-bottom: 1px solid #f7f5f0; }
+  .legend-row:last-child { border-bottom: none; }
+  .legend-row .badge { justify-self: start; margin-top: 1px; }
+  .legend-row p { font-size: 12.5px; color: #52514e; line-height: 1.55; }
+  @media (max-width: 640px) { .legend-row { grid-template-columns: 1fr; row-gap: 4px; } }
 </style>
 </head>
 <body>
-<div class="page">
-  <h1>Meta Ads Dashboard</h1>
+<div class="wrap">
+  <h1>Ad assessment</h1>
+  <p class="sub">Each layer judged on its own job: TOF on 7-day reach economics, TOM and MOF on 4-day purchase economics.</p>
 
-  <div class="section-title">Account settings</div>
-  <div class="input-grid section-gap">
-    <div class="input-card">
-      <div class="input-label">AOV ($)</div>
-      <input type="number" id="aov" value="120" min="1" step="1" oninput="recalc()">
+  <div class="card">
+    <div class="stage-tabs" id="tabs">
+      <button data-stage="TOF" onclick="setStage('TOF')">TOF</button>
+      <button data-stage="TOM" onclick="setStage('TOM')">TOM</button>
+      <button data-stage="MOF" onclick="setStage('MOF')">MOF</button>
     </div>
-    <div class="input-card">
-      <div class="input-label">MER</div>
-      <input type="number" id="mer" value="30" min="0.1" step="0.1" oninput="recalc()">
+    <div class="settings" id="settings"></div>
+    <details class="guidance" id="guidance">
+      <summary>How to set these</summary>
+      <p class="note" id="settingsnote" style="margin-top:8px;"></p>
+    </details>
+    <details class="guidance" id="calc">
+      <summary>Threshold calculator — derive the numbers from your own account</summary>
+      <div id="calcbody"></div>
+    </details>
+  </div>
+
+  <div class="card">
+    <div class="import-label">Import CSVs</div>
+    <div class="import-cards">
+      <div class="import-card" onclick="pickFiles('4d')">
+        <div class="icon">&#8862;</div>
+        <div class="title">CPP &amp; Spend CSV</div>
+        <div class="state" id="state-4d">Last 4 days &middot; click to select</div>
+      </div>
+      <div class="import-card" onclick="pickFiles('7d')">
+        <div class="icon">&#8767;</div>
+        <div class="title">Reach, CTR &amp; Frequency CSV</div>
+        <div class="state" id="state-7d">Last 7 days &middot; click to select</div>
+      </div>
     </div>
-    <div class="input-card">
-      <div class="input-label">Funnel stage</div>
-      <select id="stage" onchange="recalc()">
-        <option value="TOF">TOF — top of funnel</option>
-        <option value="TOM">TOM — middle</option>
-        <option value="MOF">MOF — bottom</option>
-      </select>
+    <div class="import-actions">
+      <button class="load-btn" onclick="loadStaged()">&#8595; Load ads into table</button>
+      <button class="refresh-btn" onclick="refreshStaged()">&#8634; Refresh</button>
     </div>
+    <input type="file" id="csvfile" accept=".csv,text/csv" multiple style="display:none;" onchange="stageFiles(this.files); this.value='';">
+    <span class="import-status" id="importstatus"></span>
   </div>
 
-  <div class="section-title">CPP benchmarks</div>
-  <div class="metrics-grid section-gap" id="benchmarks"></div>
-
-  <div class="section-title">Frequency guide</div>
-  <div class="metrics-grid section-gap" id="freq-guide"></div>
-
-  <div class="section-title">Import CSVs</div>
-  <div class="upload-grid">
-    <label class="upload-zone" id="zone-cpp">
-      <input type="file" id="file-cpp" accept=".csv" onchange="handleFile('cpp', this)">
-      <i class="ti ti-table-import upload-icon" aria-hidden="true"></i>
-      <div class="upload-label">CPP &amp; Spend CSV</div>
-      <div class="upload-status" id="status-cpp">Ad name · Cost per result · Amount spent</div>
-    </label>
-    <label class="upload-zone" id="zone-freq">
-      <input type="file" id="file-freq" accept=".csv" onchange="handleFile('freq', this)">
-      <i class="ti ti-wave-sine upload-icon" aria-hidden="true"></i>
-      <div class="upload-label">Frequency CSV</div>
-      <div class="upload-status" id="status-freq">Ad name · Frequency</div>
-    </label>
-  </div>
-  <div class="btn-row">
-    <button class="load-btn" id="load-btn" onclick="loadAds()" disabled>
-      <i class="ti ti-download" aria-hidden="true"></i> Load ads into table
-    </button>
-    <button onclick="resetAll()">
-      <i class="ti ti-refresh" aria-hidden="true"></i> Refresh
-    </button>
+  <div class="card">
+    <div style="overflow-x:auto;">
+      <table>
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <button class="add-btn" onclick="addRow()">+ Add ad</button>
+    <div class="summary" id="summary"></div>
+    <p class="note" id="stagenote"></p>
   </div>
 
-  <div class="perf-header">
-    <div class="section-title" style="margin:0;">Ad performance</div>
-    <button onclick="addRow()"><i class="ti ti-plus" aria-hidden="true"></i> Add ad</button>
-  </div>
-  <div class="ad-table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:26%">Ad name</th>
-          <th style="width:13%">Spend ($)</th>
-          <th style="width:10%">% of spend</th>
-          <th style="width:12%">CPP ($)</th>
-          <th style="width:10%">Frequency</th>
-          <th style="width:13%">Assessment</th>
-          <th style="width:4%"></th>
-        </tr>
-      </thead>
-      <tbody id="ad-rows"></tbody>
-    </table>
+  <div class="card legend">
+    <h2>What the assessments mean</h2>
+    <p class="lsub">Every verdict is derived from the thresholds set above, so the tool judges against targets set before the results came in.</p>
+
+    <div class="legend-group">
+      <h3>All stages</h3>
+      <div class="legend-row"><span class="badge b-gray">Needs more data</span><p>4-day spend is below the minimum you set. Any verdict at this level would be noise, not signal — the ad hasn't been given enough budget to prove or disprove anything.</p></div>
+      <div class="legend-row"><span class="badge b-green">Keep</span><p>Passing every check for its layer's job. No action required.</p></div>
+    </div>
+
+    <div class="legend-group">
+      <h3>TOF — judged on reach economics, never CPP</h3>
+      <div class="legend-row"><span class="badge b-gray">Add reach data</span><p>TOF cannot be judged without accounts reached. Import the 7-day CSV or enter reach manually.</p></div>
+      <div class="legend-row"><span class="badge b-red">Reach inefficient — switch off</span><p>Cost per 1,000 accounts reached is more than 30% above your band. The ad never bought audience efficiently, which is TOF's one job. Kill the concept, not just the asset.</p></div>
+      <div class="legend-row"><span class="badge b-amber">Cheap reach, weak pull — rework creative</span><p>Buying reach under the band, but outbound CTR is below your floor. The audience sees it and nobody acts. That's a creative problem, not a delivery problem — the concept may survive with a new hook or tile.</p></div>
+      <div class="legend-row"><span class="badge b-amber">Fatigued — replace creative, keep concept</span><p>Reach is efficient and CTR clears the floor, but frequency is above your ceiling, meaning it's increasingly re-showing to the same accounts. The ad worked and is now done. Retire the asset, reskin the concept.</p></div>
+    </div>
+
+    <div class="legend-group">
+      <h3>TOM and MOF — judged on CPP against target</h3>
+      <div class="legend-row"><span class="badge b-amber">No purchases yet — watch</span><p>No result recorded, but spend is still under twice the target CPP. Too early to call — give it one more window.</p></div>
+      <div class="legend-row"><span class="badge b-red">No purchases — switch off</span><p>Spend has passed twice the target CPP with nothing to show. The ad has had target-level budget two times over and hasn't converted once.</p></div>
+      <div class="legend-row"><span class="badge b-red">Switch off</span><p>CPP is more than 40% above target. At that distance the ad is structurally unprofitable against your AOV, not just having a slow week.</p></div>
+      <div class="legend-row"><span class="badge b-amber">Over target — watch</span><p>CPP is 10&ndash;40% above target: close enough that a good few days fixes it, far enough that it doesn't get a free pass. One more window before action.</p></div>
+      <div class="legend-row"><span class="badge b-amber">On target but fatiguing</span><p>The economics are fine but frequency has passed your ceiling. Performance will decay from here — plan the creative refresh before the CPP tells you to.</p></div>
+    </div>
+
+    <div class="legend-group">
+      <h3>Behaviour flags — informational, added alongside the verdict</h3>
+      <div class="legend-row"><span class="badge b-teal">Promote to TOF candidate</span><p>TOM only. This ad's cost per 1,000 reached is 28%+ below the TOM median, meaning Meta is finding it cheap incremental reach — the signature of broad-appeal creative behaving like TOF. Confirm with hook rate or outbound CTR before moving it up.</p></div>
+      <div class="legend-row"><span class="badge b-teal">TOF-like reach profile</span><p>MOF only. This ad is reaching at TOF-band cost despite sitting in a closer campaign — unusually broad delivery for its position. Bundle closers stay in MOF by design, so this is a flag, not a promotion order: it tells you the creative has broad appeal worth borrowing for prospecting concepts.</p></div>
+    </div>
   </div>
 </div>
 
 <script>
-const freqRanges = { TOF:[1.4,1.8], TOM:[1.8,2.0], MOF:[2.0,2.4] };
-const cppMult = { good:{TOF:2,TOM:1.5,MOF:1}, bad:{TOF:4,TOM:3,MOF:2} };
-const FREQ_HIGH_BUFFER = 1.10;
+var stage = 'TOF';
+var rowId = 0;
+var importMode = '7d';
+var staged = { '7d': null, '4d': null };
 
-let ads = [];
-let rowId = 0;
-let cppRows = null;
-let freqRows = null;
+var cfg = {
+  TOF: { band: 25, ctrFloor: 0.5, freqCeil: 2.2, minSpend: 20 },
+  TOM: { aov: 135, cppPct: 22, freqCeil: 4.0, minSpend: 20 },
+  MOF: { aov: 135, cppPct: 27, freqCeil: 8.0, minSpend: 20 }
+};
 
-function getBlended(aov, mer) { return aov * (mer / 100); }
-function totalSpend() { return ads.reduce((s,a) => s + (parseFloat(a.spend)||0), 0); }
+var data = { TOF: [], TOM: [], MOF: [] };
+
+try {
+  var saved = localStorage.getItem('hegen-ad-tool-v4');
+  if (saved) { var s = JSON.parse(saved); if (s.cfg) cfg = s.cfg; if (s.data) data = s.data; if (s.stage) stage = s.stage; }
+} catch (e) {}
+
+function persist() {
+  try { localStorage.setItem('hegen-ad-tool-v4', JSON.stringify({ cfg: cfg, data: data, stage: stage })); } catch (e) {}
+}
+
+function setStage(s) { stage = s; persist(); renderAll(); }
+
+function blankRow() {
+  return { id: ++rowId, name: 'New ad', spend: 0, cpp: 0, cpk: 0, reach: 0, ctr: 0, freq: 0 };
+}
+
+function addRow() { data[stage].push(blankRow()); persist(); renderRows(); }
+
+function settingField(key, label, hint, step) {
+  return '<div class="setting"><label>' + label + '</label>' +
+    '<input type="number" step="' + (step || '0.01') + '" value="' + cfg[stage][key] + '" ' +
+    'oninput="stage_set(\'' + key + '\', this.value)">' +
+    (hint ? '<span class="hint">' + hint + '</span>' : '') + '</div>';
+}
+
+function stage_set(key, val) {
+  cfg[stage][key] = parseFloat(val) || 0;
+  persist();
+  renderRows();
+  if (stage !== 'TOF' && (key === 'aov' || key === 'cppPct')) {
+    var h = document.getElementById('targethint');
+    if (h) h.textContent = 'Profitability line: $' + targetCpp().toFixed(2);
+  }
+}
+window.stage_set = stage_set;
+
+function renderSettings() {
+  var el = document.getElementById('settings');
+  if (stage === 'TOF') {
+    el.innerHTML =
+      settingField('band', 'Reach band ($/1,000)', 'From clean-month TOF data') +
+      settingField('ctrFloor', 'Outbound CTR floor (%)', 'Quality check') +
+      settingField('freqCeil', 'Frequency ceiling', 'Fatigue clock') +
+      settingField('minSpend', 'Min 4-day spend to judge ($)', 'Noise filter', '1');
+  } else {
+    el.innerHTML =
+      settingField('aov', 'AOV ($)', 'Store average, from Shopify', '1') +
+      settingField('cppPct', 'Target CPP (% of AOV)', '<span id="targethint">Profitability line: $' + targetCpp().toFixed(2) + '</span>', '1') +
+      settingField('freqCeil', 'Frequency ceiling', 'Fatigue clock', '0.1') +
+      settingField('minSpend', 'Min 4-day spend to judge ($)', 'Noise filter', '1');
+  }
+  renderSettingsNote();
+}
+
+function renderSettingsNote() {
+  var notes = {
+    TOF: 'Reach band is the average cost per 1,000 accounts reached across TOF ads over a clean full-price month \u2014 pull it from the 7-day export, averaged over 4+ weeks, and re-derive it after any sale period. Outbound CTR floor is the account\u2019s TOF average minus roughly a third; an ad below it is being seen but not moving anyone. Frequency ceiling is where TOF ads historically start decaying \u2014 for a reach layer that should sit low, around 2\u20132.5, because TOF\u2019s job is new accounts, not repeats. Min 4-day spend should be at least a day\u2019s ad-set budget so no ad is judged on a few dollars of delivery.',
+    TOM: 'AOV is the store\u2019s current average order value \u2014 check it monthly in Shopify. Target CPP as a % of AOV is the profitability line; it should come from margin, not ambition (e.g. 22% of a $135 AOV = $29.70 per purchase). Frequency ceiling for TOM sits higher than TOF because converting takes repeat exposure \u2014 set it where historical CPP starts climbing with frequency, typically 4\u20135. Min 4-day spend: at least one target CPP\u2019s worth, so an ad has had the budget to convert once before being judged.',
+    MOF: 'AOV is the store average, same as TOM \u2014 check it monthly in Shopify. Target CPP % can run higher than TOM because closers are expected to spend to close, so a larger share of margin goes to the final push. Frequency ceiling is deliberately loose (7\u20139): retargeting re-shows by design, so frequency only matters here when CPP is also drifting. Min 4-day spend: one target CPP\u2019s worth, same logic as TOM.'
+  };
+  document.getElementById('settingsnote').textContent = notes[stage];
+}
+
+function targetCpp() { return cfg[stage].aov * cfg[stage].cppPct / 100; }
+
+function cost1k(ad) { return ad.cpk || 0; }
+
+function tomMedianCost1k() {
+  var vals = data.TOM.filter(function (a) { return (a.cpk || 0) > 0; })
+    .map(cost1k).sort(function (a, b) { return a - b; });
+  if (!vals.length) return 0;
+  var m = Math.floor(vals.length / 2);
+  return vals.length % 2 ? vals[m] : (vals[m - 1] + vals[m]) / 2;
+}
+
+function badge(cls, txt) { return '<span class="badge ' + cls + '">' + txt + '</span>'; }
+
+function assess(ad) {
+  var c = cfg[stage];
+
+  if (stage === 'TOF') {
+    if (!(c.band > 0)) return badge('b-gray', 'Set reach band above');
+    if (ad.spend < c.minSpend) return badge('b-gray', 'Needs more data');
+    if (!ad.reach || !(ad.cpk > 0)) return badge('b-gray', 'Add reach data');
+    var rc = cost1k(ad);
+    if (rc > c.band * 1.3) return badge('b-red', 'Reach inefficient — switch off');
+    if (ad.ctr < c.ctrFloor) return badge('b-amber', 'Cheap reach, weak pull — rework creative');
+    if (ad.freq > c.freqCeil) return badge('b-amber', 'Fatigued — replace creative, keep concept');
+    return badge('b-green', 'Keep');
+  }
+
+  if (!(targetCpp() > 0)) return badge('b-gray', 'Set AOV and target CPP above');
+  if (ad.spend < c.minSpend) return badge('b-gray', 'Needs more data');
+
+  var t = targetCpp();
+  var out = '';
+  if (ad.cpp === 0) {
+    out = ad.spend > t * 2 ? badge('b-red', 'No purchases — switch off') : badge('b-amber', 'No purchases yet — watch');
+  } else if (ad.cpp > t * 1.4) {
+    out = badge('b-red', 'Switch off');
+  } else if (ad.cpp > t * 1.1) {
+    out = badge('b-amber', 'Over target — watch');
+  } else if (ad.freq > c.freqCeil) {
+    out = badge('b-amber', 'On target but fatiguing');
+  } else {
+    out = badge('b-green', 'Keep');
+  }
+
+  if (stage === 'TOM' && ad.reach > 0) {
+    var med = tomMedianCost1k();
+    if (med > 0 && cost1k(ad) <= med * 0.72) out += badge('b-teal', 'Promote to TOF candidate');
+  }
+  if (stage === 'MOF' && (ad.cpk || 0) > 0) {
+    if (cost1k(ad) <= cfg.TOF.band * 1.2) out += badge('b-teal', 'TOF-like reach profile');
+  }
+  return out;
+}
+
+function renderHead() {
+  var cols;
+  if (stage === 'TOF') {
+    cols = ['Ad name', 'Spend 4d ($)', '% of spend', 'Cost /1,000 (7d)', 'Reach (7d)', 'Outbound CTR (7d, %)', 'Frequency (7d)', 'Assessment', ''];
+  } else {
+    cols = ['Ad name', 'Spend 4d ($)', '% of spend', 'CPP 4d ($)', 'Frequency (7d)', 'Reach (7d)', 'Cost /1,000 (7d)', 'Assessment', ''];
+  }
+  document.getElementById('thead').innerHTML = '<tr>' + cols.map(function (c) { return '<th>' + c + '</th>'; }).join('') + '</tr>';
+}
+
+function inp(i, key, step) {
+  return '<input type="number" min="0" step="' + (step || '0.01') + '" value="' + data[stage][i][key] + '" ' +
+    'oninput="upd(' + i + ',\'' + key + '\',this.value)">';
+}
+
+function upd(i, key, val) {
+  data[stage][i][key] = key === 'name' ? val : (parseFloat(val) || 0);
+  persist();
+  renderRows();
+}
+window.upd = upd;
+
+function removeRow(i) { data[stage].splice(i, 1); persist(); renderRows(); }
+window.removeRow = removeRow;
+
+function status(msg) { document.getElementById('importstatus').textContent = msg; }
+
+function pickFiles(mode) { importMode = mode; document.getElementById('csvfile').click(); }
+window.pickFiles = pickFiles;
 
 function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
-  const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim());
-  return lines.slice(1).filter(l => l.trim()).map(line => {
-    const vals = [];
-    let cur = '', inQ = false;
-    for (let c of line) {
-      if (c === '"') { inQ = !inQ; }
-      else if (c === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
-      else { cur += c; }
-    }
-    vals.push(cur.trim());
-    const obj = {};
-    headers.forEach((h,i) => { obj[h] = (vals[i]||'').replace(/^"|"$/g,'').trim(); });
-    return obj;
-  });
+  var rows = [], row = [], cur = '', inQ = false;
+  text = text.replace(/^\uFEFF/, '');
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i];
+    if (inQ) {
+      if (ch === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else { inQ = false; } }
+      else { cur += ch; }
+    } else if (ch === '"') { inQ = true; }
+    else if (ch === ',') { row.push(cur); cur = ''; }
+    else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && text[i + 1] === '\n') i++;
+      row.push(cur); cur = '';
+      if (row.some(function (c) { return c.trim() !== ''; })) rows.push(row);
+      row = [];
+    } else { cur += ch; }
+  }
+  row.push(cur);
+  if (row.some(function (c) { return c.trim() !== ''; })) rows.push(row);
+  return rows;
 }
 
-function handleFile(type, input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const rows = parseCSV(e.target.result);
-      if (type === 'cpp') {
-        cppRows = rows;
-        document.getElementById('status-cpp').textContent = rows.length + ' rows loaded ✓';
-        document.getElementById('status-cpp').className = 'upload-status ok';
-        document.getElementById('zone-cpp').classList.add('has-file');
-      } else {
-        freqRows = rows;
-        document.getElementById('status-freq').textContent = rows.length + ' rows loaded ✓';
-        document.getElementById('status-freq').className = 'upload-status ok';
-        document.getElementById('zone-freq').classList.add('has-file');
+function num(v) {
+  if (v === undefined || v === null) return null;
+  var n = parseFloat(String(v).replace(/[^0-9.\-]/g, ''));
+  return isNaN(n) ? null : n;
+}
+
+function detectCols(header, mode) {
+  var h = header.map(function (c) { return c.toLowerCase().trim(); });
+  function exact(t) { for (var i = 0; i < h.length; i++) { if (h[i] === t) return i; } return -1; }
+  function contains(tests) {
+    for (var t = 0; t < tests.length; t++) {
+      for (var i = 0; i < h.length; i++) { if (h[i].indexOf(tests[t]) > -1) return i; }
+    }
+    return -1;
+  }
+  var cols = { name: exact('ad name') > -1 ? exact('ad name') : contains(['ad name']) };
+  var map = {};
+  if (mode === '7d') {
+    cols.cpk = contains(['cost per 1,000 meta accounts reached', 'cost per 1,000 accounts reached', 'cost per 1,000']);
+    cols.reach = exact('reach');
+    cols.ctr = contains(['outbound ctr']);
+    cols.freq = exact('frequency') > -1 ? exact('frequency') : contains(['frequency']);
+    map = { cpk: 'cost /1,000', reach: 'reach', ctr: 'outbound CTR', freq: 'frequency' };
+  } else {
+    cols.spend = contains(['amount spent']);
+    cols.cpp = contains(['cost per result', 'cost per purchase']);
+    map = { spend: 'spend', cpp: 'CPP' };
+  }
+  cols._report = Object.keys(map).map(function (k) {
+    return map[k] + ' \u2190 ' + (cols[k] > -1 ? '"' + header[cols[k]].trim() + '"' : 'NOT FOUND');
+  }).join('; ');
+  return cols;
+}
+
+function stageFiles(files) {
+  if (!files || !files.length) return;
+  var mode = importMode;
+  var pending = files.length;
+  var lastReport = '';
+  var parsed = staged[mode] && staged[mode].rows ? staged[mode].rows : [];
+  Array.prototype.forEach.call(files, function (file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var rows = parseCSV(reader.result);
+      if (rows.length > 1) {
+        var cols = detectCols(rows[0], mode);
+        lastReport = cols._report;
+        if (cols.name === -1) {
+          status('Could not find an "Ad name" column in ' + file.name);
+        } else {
+          var keys = mode === '7d' ? ['cpk', 'reach', 'ctr', 'freq'] : ['spend', 'cpp'];
+          for (var r = 1; r < rows.length; r++) {
+            var name = (rows[r][cols.name] || '').trim();
+            if (!name || name.toLowerCase().indexOf('total') === 0) continue;
+            var rec = { name: name };
+            keys.forEach(function (k) {
+              if (cols[k] > -1) { var v = num(rows[r][cols[k]]); if (v !== null) rec[k] = v; }
+            });
+            parsed.push(rec);
+          }
+        }
       }
-    } catch(err) {
-      const sid = type==='cpp' ? 'status-cpp' : 'status-freq';
-      document.getElementById(sid).textContent = 'Error reading file';
-      document.getElementById(sid).className = 'upload-status err';
-    }
-    document.getElementById('load-btn').disabled = !(cppRows && freqRows);
-  };
-  reader.readAsText(file);
-}
-
-function loadAds() {
-  const count = Math.min(cppRows.length, freqRows.length);
-  ads = [];
-  for (let i = 0; i < count; i++) {
-    const cr = cppRows[i];
-    const fr = freqRows[i];
-    const name  = (cr['Ad name'] || '').trim();
-    const spend = parseFloat(cr['Amount spent (AUD)'] || cr['Amount spent'] || 0) || 0;
-    const cpp   = parseFloat(cr['Cost per result'] || 0) || 0;
-    const freq  = parseFloat(fr['Frequency'] || 0) || 0;
-    ads.push({ name, spend, cpp, freq });
-  }
-  rowId = ads.length;
-  renderRows();
-}
-
-function resetAll() {
-  ads = []; rowId = 0; cppRows = null; freqRows = null;
-  ['cpp','freq'].forEach(t => {
-    document.getElementById('file-' + t).value = '';
-    document.getElementById('status-' + t).textContent = t === 'cpp' ? 'Ad name · Cost per result · Amount spent' : 'Ad name · Frequency';
-    document.getElementById('status-' + t).className = 'upload-status';
-    document.getElementById('zone-' + t).classList.remove('has-file');
+      if (--pending === 0) {
+        staged[mode] = { rows: parsed, report: lastReport };
+        renderStaged();
+        status('Staged \u2014 mapped: ' + lastReport + '. Click "Load ads into table" to merge into the ' + stage + ' tab.');
+      }
+    };
+    reader.readAsText(file);
   });
-  document.getElementById('load-btn').disabled = true;
-  renderRows();
+}
+window.stageFiles = stageFiles;
+
+function renderStaged() {
+  var s4 = document.getElementById('state-4d');
+  var s7 = document.getElementById('state-7d');
+  if (staged['4d'] && staged['4d'].rows.length) { s4.textContent = staged['4d'].rows.length + ' rows loaded \u2713'; s4.className = 'state loaded'; }
+  else { s4.textContent = 'Last 4 days \u00b7 click to select'; s4.className = 'state'; }
+  if (staged['7d'] && staged['7d'].rows.length) { s7.textContent = staged['7d'].rows.length + ' rows loaded \u2713'; s7.className = 'state loaded'; }
+  else { s7.textContent = 'Last 7 days \u00b7 click to select'; s7.className = 'state'; }
 }
 
-function assessment(cpp, freq, spend, stage, aov, mer) {
-  const blended = getBlended(aov, mer);
-  const good    = blended * cppMult.good[stage];
-  const bad     = blended * cppMult.bad[stage];
-  const [,fMax] = freqRanges[stage];
-  const freqHighThreshold = fMax * FREQ_HIGH_BUFFER;
-  const tot     = totalSpend();
-  const spendPct = tot > 0 ? (spend / tot) * 100 : 0;
-  if (cpp === 0) {
-    return spendPct >= 10
-      ? '<span class="badge badge-off">Switch off</span>'
-      : '<span class="badge badge-data">Needs more data</span>';
-  }
-  if (cpp >= bad)              return '<span class="badge badge-off">Switch off</span>';
-  if (freq > freqHighThreshold) return '<span class="badge badge-freq">High frequency</span>';
-  if (cpp > good || freq > fMax) return '<span class="badge badge-monitor">Monitor</span>';
-  return '<span class="badge badge-keep">Keep</span>';
+function loadStaged() {
+  var added = 0, merged = 0, any = false;
+  ['4d', '7d'].forEach(function (mode) {
+    if (!staged[mode] || !staged[mode].rows.length) return;
+    any = true;
+    staged[mode].rows.forEach(function (rec) {
+      var ad = null;
+      for (var a = 0; a < data[stage].length; a++) { if (data[stage][a].name === rec.name) { ad = data[stage][a]; break; } }
+      if (!ad) { ad = blankRow(); ad.name = rec.name; data[stage].push(ad); added++; }
+      else { merged++; }
+      Object.keys(rec).forEach(function (k) { if (k !== 'name') ad[k] = rec[k]; });
+    });
+  });
+  if (!any) { status('Nothing staged yet — select one or both CSVs first.'); return; }
+  persist(); renderRows();
+  status('Loaded into ' + stage + ': ' + added + ' new ads, ' + merged + ' updated. Rows merge on ad name.');
 }
+window.loadStaged = loadStaged;
 
-function recalc() {
-  const aov   = parseFloat(document.getElementById('aov').value) || 0;
-  const mer   = parseFloat(document.getElementById('mer').value) || 0;
-  const stage = document.getElementById('stage').value;
-  const blended = getBlended(aov, mer);
-  const good  = blended * cppMult.good[stage];
-  const bad   = blended * cppMult.bad[stage];
-  const [fMin, fMax] = freqRanges[stage];
-  const freqHigh = (fMax * FREQ_HIGH_BUFFER).toFixed(2);
-
-  document.getElementById('benchmarks').innerHTML = `
-    <div class="metric-card"><div class="metric-label">Blended CPP</div><div class="metric-value">$${blended.toFixed(2)}</div><div class="metric-sub">AOV × (MER ÷ 100)</div></div>
-    <div class="metric-card"><div class="metric-label">Good CPP (${stage})</div><div class="metric-value" style="color:#3B6D11;">$${good.toFixed(2)}</div><div class="metric-sub">Blended × ${cppMult.good[stage]}</div></div>
-    <div class="metric-card"><div class="metric-label">Bad CPP (${stage})</div><div class="metric-value" style="color:#A32D2D;">$${bad.toFixed(2)}</div><div class="metric-sub">Blended × ${cppMult.bad[stage]}</div></div>`;
-
-  document.getElementById('freq-guide').innerHTML = `
-    <div class="metric-card"><div class="metric-label">Stage</div><div class="metric-value">${stage}</div><div class="metric-sub">${stage==='TOF'?'Top of funnel':stage==='TOM'?'Mid funnel':'Bottom of funnel'}</div></div>
-    <div class="metric-card"><div class="metric-label">Target frequency</div><div class="metric-value">${fMin}–${fMax}</div><div class="metric-sub">7-day window</div></div>
-    <div class="metric-card"><div class="metric-label">High frequency above</div><div class="metric-value">${freqHigh}</div><div class="metric-sub">Max × 1.10</div></div>`;
-
-  renderRows();
+function refreshStaged() {
+  staged = { '7d': null, '4d': null };
+  renderStaged();
+  status('Staged files cleared.');
 }
+window.refreshStaged = refreshStaged;
 
 function renderRows() {
-  const aov   = parseFloat(document.getElementById('aov').value) || 0;
-  const mer   = parseFloat(document.getElementById('mer').value) || 0;
-  const stage = document.getElementById('stage').value;
-  const tot   = totalSpend();
-  document.getElementById('ad-rows').innerHTML = ads.map((ad, i) => {
-    const pct = tot > 0 ? ((ad.spend / tot) * 100).toFixed(1) : '—';
-    return `<tr>
-      <td style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${ad.name}">${ad.name}</td>
-      <td><input type="number" value="${ad.spend.toFixed(2)}" min="0" step="0.01" style="width:90%;" oninput="ads[${i}].spend=parseFloat(this.value)||0;renderRows()"></td>
-      <td style="color:#52514e;">${pct}%</td>
-      <td><input type="number" value="${ad.cpp.toFixed(2)}" min="0" step="0.01" style="width:90%;" oninput="ads[${i}].cpp=parseFloat(this.value)||0;renderRows()"></td>
-      <td><input type="number" value="${ad.freq.toFixed(2)}" min="0" step="0.01" style="width:90%;" oninput="ads[${i}].freq=parseFloat(this.value)||0;renderRows()"></td>
-      <td>${assessment(ad.cpp, ad.freq, ad.spend, stage, aov, mer)}</td>
-      <td><button class="del-btn" onclick="ads.splice(${i},1);renderRows()" aria-label="Remove ad">×</button></td>
-    </tr>`;
+  var ads = data[stage];
+  var tot = ads.reduce(function (s, a) { return s + a.spend; }, 0);
+  var rows = ads.map(function (ad, i) {
+    var base = ad.spend;
+    var pct = tot > 0 ? (base / tot * 100).toFixed(1) + '%' : '\u2014';
+    var name = '<td><input type="text" value="' + ad.name.replace(/"/g, '&quot;') + '" onchange="upd(' + i + ',\'name\',this.value)"></td>';
+    var del = '<td><button class="del-btn" onclick="removeRow(' + i + ')" aria-label="Remove ad">\u00d7</button></td>';
+
+    if (stage === 'TOF') {
+      return '<tr>' + name +
+        '<td>' + inp(i, 'spend') + '</td><td class="calc">' + pct + '</td>' +
+        '<td>' + inp(i, 'cpk') + '</td><td>' + inp(i, 'reach', '1') + '</td>' +
+        '<td>' + inp(i, 'ctr') + '</td><td>' + inp(i, 'freq') + '</td>' +
+        '<td>' + assess(ad) + '</td>' + del + '</tr>';
+    }
+    return '<tr>' + name +
+      '<td>' + inp(i, 'spend') + '</td><td class="calc">' + pct + '</td>' +
+      '<td>' + inp(i, 'cpp') + '</td><td>' + inp(i, 'freq') + '</td>' +
+      '<td>' + inp(i, 'reach', '1') + '</td><td>' + inp(i, 'cpk') + '</td>' +
+      '<td>' + assess(ad) + '</td>' + del + '</tr>';
   }).join('');
+  document.getElementById('tbody').innerHTML = rows;
+  renderSummary(tot);
 }
 
-function addRow() {
-  ads.push({ name: 'New ad ' + (++rowId), spend: 0, cpp: 0, freq: 0 });
+function renderSummary(tot) {
+  var ads = data[stage];
+  var counts = { keep: 0, off: 0, watch: 0, nodata: 0 };
+  ads.forEach(function (ad) {
+    var a = assess(ad);
+    if (a.indexOf('b-green') > -1) counts.keep++;
+    else if (a.indexOf('b-red') > -1) counts.off++;
+    else if (a.indexOf('b-amber') > -1) counts.watch++;
+    else counts.nodata++;
+  });
+  var totLabel = 'Total 4-day spend';
+  document.getElementById('summary').innerHTML =
+    '<span>' + totLabel + ' <strong>$' + tot.toFixed(2) + '</strong></span>' +
+    '<span>Keep <strong>' + counts.keep + '</strong></span>' +
+    '<span>Action <strong>' + counts.watch + '</strong></span>' +
+    '<span>Switch off <strong>' + counts.off + '</strong></span>' +
+    '<span>Needs data <strong>' + counts.nodata + '</strong></span>';
+}
+
+function renderNote() {
+  var notes = {
+    TOF: 'TOF is judged on 7-day reach economics, not CPP, with the 4-day spend as the minimum-data gate. Full definitions in the legend below.',
+    TOM: 'TOM is judged on 4-day CPP against target, with 7-day reach data enabling the promotion flag. Full definitions in the legend below.',
+    MOF: 'MOF is judged on 4-day CPP against the discounted bundle AOV target, with 7-day reach data enabling the TOF-like reach flag. Full definitions in the legend below.'
+  };
+  document.getElementById('stagenote').textContent = notes[stage];
+}
+
+var calc = {
+  TOF: { spend: 0, reach: 0, avgCtr: 0, avgFreq: 0, daily: 0 },
+  TOM: { aov: 0, margin: 0, share: 35, freq: 4 },
+  MOF: { aov: 0, margin: 0, share: 40, freq: 8 }
+};
+
+function calcField(key, label, hint, step) {
+  return '<div class="setting"><label>' + label + '</label>' +
+    '<input type="number" min="0" step="' + (step || '0.01') + '" value="' + (calc[stage][key] || '') + '" ' +
+    'oninput="calc_set(\'' + key + '\', this.value)">' +
+    (hint ? '<span class="hint">' + hint + '</span>' : '') + '</div>';
+}
+
+function calc_set(key, val) { calc[stage][key] = parseFloat(val) || 0; renderCalcOut(); }
+window.calc_set = calc_set;
+
+function calcResults() {
+  var c = calc[stage];
+  if (stage === 'TOF') {
+    return {
+      band: c.reach > 0 ? c.spend / c.reach * 1000 : 0,
+      ctrFloor: c.avgCtr * 0.67,
+      freqCeil: c.avgFreq * 1.2,
+      minSpend: c.daily
+    };
+  }
+  var pct = c.margin * c.share / 100;
+  return {
+    aov: c.aov,
+    cppPct: pct,
+    freqCeil: c.freq,
+    minSpend: c.aov * pct / 100
+  };
+}
+
+function renderCalc() {
+  var el = document.getElementById('calcbody');
+  var intro;
+  if (stage === 'TOF') {
+    intro = '<p class="note" style="margin-top:8px;">Pull a TOF-only report for the last clean full-price month (no sale days) and enter the totals and averages below.</p>';
+    el.innerHTML = intro + '<div class="calc-grid">' +
+      calcField('spend', 'TOF spend, clean month ($)', 'Total, all TOF ads', '1') +
+      calcField('reach', 'Accounts reached, clean month', 'Total, all TOF ads', '1') +
+      calcField('avgCtr', 'Average outbound CTR (%)', 'Across TOF ads') +
+      calcField('avgFreq', 'Average frequency', 'Across TOF ads') +
+      calcField('daily', 'Daily TOF ad set budget ($)', 'Current setting', '1') +
+      '</div><div class="calc-out" id="calcout"></div>' +
+      '<button class="apply-btn" onclick="applyCalc()">Apply to settings</button>';
+  } else {
+    var aovLabel = 'Store AOV ($)';
+    var aovHint = 'From Shopify, this month';
+    intro = '<p class="note" style="margin-top:8px;">The target comes from margin, not ambition: decide what share of each order\u2019s gross margin you are willing to spend acquiring it.</p>';
+    el.innerHTML = intro + '<div class="calc-grid">' +
+      calcField('aov', aovLabel, aovHint, '1') +
+      calcField('margin', 'Gross margin (%)', 'After product + shipping', '1') +
+      calcField('share', 'Margin share for acquisition (%)', 'Typically 30\u201345', '1') +
+      calcField('freq', 'Frequency where CPP climbs', 'From your history', '0.1') +
+      '</div><div class="calc-out" id="calcout"></div>' +
+      '<button class="apply-btn" onclick="applyCalc()">Apply to settings</button>';
+  }
+  renderCalcOut();
+}
+
+function renderCalcOut() {
+  var r = calcResults();
+  var el = document.getElementById('calcout');
+  if (stage === 'TOF') {
+    if (!r.band) { el.innerHTML = 'Enter the clean-month figures above and the thresholds appear here.'; return; }
+    el.innerHTML =
+      'Reach band: <strong>$' + r.band.toFixed(2) + '</strong> per 1,000 (your clean-month average \u2014 ads get flagged at 30% above it)<br>' +
+      'Outbound CTR floor: <strong>' + r.ctrFloor.toFixed(2) + '%</strong> (a third below your average \u2014 below this, people see the ad but don\u2019t act)<br>' +
+      'Frequency ceiling: <strong>' + r.freqCeil.toFixed(1) + '</strong> (20% above your average \u2014 past this the ad is re-showing, not reaching)<br>' +
+      'Min 4-day spend: <strong>$' + r.minSpend.toFixed(0) + '</strong> (one day\u2019s budget \u2014 below this any verdict is noise)';
+  } else {
+    if (!r.aov || !r.cppPct) { el.innerHTML = 'Enter AOV, margin, and share above and the thresholds appear here.'; return; }
+    el.innerHTML =
+      'Target CPP: <strong>' + r.cppPct.toFixed(0) + '% of AOV = $' + (r.aov * r.cppPct / 100).toFixed(2) + '</strong> per purchase (margin \u00d7 acquisition share \u2014 spend past this and the order stops being profitable enough)<br>' +
+      'Frequency ceiling: <strong>' + r.freqCeil.toFixed(1) + '</strong> (the point where your history shows CPP climbing with repeat exposure)<br>' +
+      'Min 4-day spend: <strong>$' + r.minSpend.toFixed(0) + '</strong> (one target CPP \u2014 the ad has had the budget to convert once before it gets judged)';
+  }
+}
+
+function applyCalc() {
+  var r = calcResults();
+  var c = cfg[stage];
+  if (stage === 'TOF') {
+    if (!r.band) return;
+    c.band = +r.band.toFixed(2);
+    c.ctrFloor = +r.ctrFloor.toFixed(2);
+    c.freqCeil = +r.freqCeil.toFixed(1);
+    c.minSpend = Math.round(r.minSpend);
+  } else {
+    if (!r.aov || !r.cppPct) return;
+    c.aov = r.aov;
+    c.cppPct = +r.cppPct.toFixed(0);
+    c.freqCeil = r.freqCeil;
+    c.minSpend = Math.round(r.minSpend);
+  }
+  persist();
+  renderSettings();
   renderRows();
 }
+window.applyCalc = applyCalc;
 
-recalc();
+function renderAll() {
+  document.querySelectorAll('#tabs button').forEach(function (b) {
+    b.classList.toggle('active', b.getAttribute('data-stage') === stage);
+  });
+  renderSettings();
+  renderCalc();
+  renderHead();
+  renderRows();
+  renderNote();
+  renderStaged();
+}
+
+if (!data.TOF.length && !data.TOM.length && !data.MOF.length) {
+  data.TOF.push(blankRow());
+}
+renderAll();
 </script>
 </body>
 </html>
